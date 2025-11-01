@@ -10,17 +10,17 @@ help:
 	@echo "  make clean   - Remove container"
 
 run:
-	docker-compose up --build -d
+	docker compose up --build -d
 
 stop:
-	docker-compose down
+	docker compose down
 	
 
 restart: stop run
 
 logs:
-	docker-compose logs -f
+	docker compose logs -f
 
 clean:
-	docker-compose down -v
+	docker compose down -v
 	docker volume prune -f	
