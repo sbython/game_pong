@@ -9,6 +9,12 @@ help:
 	@echo "  make logs    - Show logs"
 	@echo "  make clean   - Remove container"
 
+ps:
+	docker ps -a
+
+# remove:
+# 	docker compose 
+
 run:
 	docker compose up --build -d
 
