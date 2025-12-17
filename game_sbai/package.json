@@ -1,0 +1,21 @@
+{
+  "name": "game_sbai",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite ",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@babylonjs/core": "^8.41.1",
+    "@babylonjs/inspector": "^8.40.0",
+    "@types/babylonjs": "^2.3.31",
+    "typescript": "~5.9.3",
+    "vite": "^7.2.4"
+  },
+  "dependencies": {
+    "@babylonjs/gui": "^8.41.1"
+  }
+}
