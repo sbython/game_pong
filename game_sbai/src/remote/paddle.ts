@@ -73,7 +73,7 @@ class Paddle {
         }
         this.paddleMesh.position.z -= distance;
     }
-    public contlol(keyUp: string, keyDown: string, moveDistance: number) {
+    public contlol(keyUp: string, keyDown: string) {
         const scene = this.scene;
         const inputMap: { [key: string]: boolean } = {};
         
@@ -87,24 +87,22 @@ class Paddle {
         scene.onBeforeRenderObservable.add(() => {
             
             if (inputMap[keyUp]) {
-                this.moveUp(moveDistance);
+                this.moveUp(0.2);
+            //    socket.send(JSON.stringify({ type: 'move', direction: 'up' }));
             }
             if (inputMap[keyDown]) {
-                this.moveDown(moveDistance);
+                this.moveDown(0.2);
+                //socket.send(JSON.stringify({ type: 'move', direction: 'down' }));
             }
         });
     }
 
-    addScore() {
-        this.scoreValue += 1;
+    public updateScore(score: number) {
         if (this.textBlock) {
-            this.textBlock.text = this.scoreValue.toString();
+            this.textBlock.text = score.toString();
         }
+        this.scoreValue = score;
 
-        if (this.scoreValue >= 3) {    
-            return true;
-        } 
-        return false;  
     }
     public getMesh(): Mesh {
         return this.paddleMesh;

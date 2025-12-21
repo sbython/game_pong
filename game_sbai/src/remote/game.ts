@@ -11,11 +11,12 @@ class Game {
     private ball: Ball;
     public  user1: string;
     public  user2: string;
-    
+    public socket: WebSocket ;
+    public playerPaddle: Paddle | null = null;
     constructor() {
         // you should fetch usernames from form_back end ;
         this.user1 = "Player 1";
-        this.user2 = "IA";
+        this.user2 = "Player 2";
         const canvas = document.getElementById('renderCanvas');
         if (!(canvas instanceof HTMLCanvasElement)) {
             throw new Error("Cannot find canvas element with id 'renderCanvas'");
@@ -24,7 +25,7 @@ class Game {
         this.engine = new Engine(this.canvas, true);
         this.scene = new Scene(this.engine);    
         this.camera = new   ArcRotateCamera("ArcRotateCamera", Math.PI / 2, Math.PI / 5, 12, Vector3.Zero(), this.scene);
-        this.camera.attachControl(this.canvas, true);
+        // this.camera.attachControl(this.canvas, true);
         this.camera.setTarget(Vector3.Zero());
         const light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
         light.intensity = 0.8;
@@ -46,12 +47,14 @@ class Game {
         wallSouth.position.y = 0.1;
 
         
+
         
         this.leftPaddle = new Paddle(this.scene, new Vector3(5.5, 0.1, 0),this.user1);
         this.rightPaddle = new Paddle(this.scene, new Vector3(-5.5, 0.1, 0), this.user2);
         this.ball = new Ball(this.scene, new Vector3(-0.088, 0.15, 0.0), this.rightPaddle.paddleMesh, this.leftPaddle.paddleMesh);
 
 
+        this.socket = new WebSocket('ws://localhost:3000/pong');
 
 
     }
@@ -66,14 +69,57 @@ class Game {
             this.engine.resize();
         });
     }
+    public updateGameState(state: any) {
+        // Update paddles
+        this.leftPaddle.paddleMesh.position.y = state.leftPaddle.y;
+        this.rightPaddle.paddleMesh.position.y = state.rightPaddle.y;
+        
+        // Update ball
+        this.ball.ballMesh.position.x = state.ball.x;
+        this.ball.ballMesh.position.y = state.ball.y;
+
+        // Update scores
+        this.leftPaddle.updateScore(state.leftPaddle.score);
+        this.rightPaddle.updateScore(state.rightPaddle.score);
+        this.leftPaddle.contlol('w', 's');
+
+    }
+
+    public showWinner(winner: string) {
+        alert(`${winner} wins the game!`);
+    }
     public start() {
-        const socket = new WebSocket('ws://localhost:8080/pong');
         /*
             first need ask server about you paddle 
             you shoule  get data from server and update it 
             if you need move you paddle seend requist to user server first 
         */
-        socket.onmessage
+       console.log();
+        this.socket.onopen = () => {
+            console.log("Connected to server!!!!!");
+            // if (this.socket.readyState !== WebSocket.OPEN) return;
+            if (this.socket.readyState === WebSocket.OPEN)
+            {
+                console.log("Socket is open, sending join message");
+                this.socket!.send(JSON.stringify({
+                    type: "join",
+                }));    
+
+            }
+            else
+            {
+                console.log("Socket not open");
+            }
+        };
+
+        // this.socket.onmessage = (event) => {
+            
+        //     // const message = JSON.parse(event.data); 
+        //     // console.log("Received message:", message);
+        // };
+       
+        this.socket.onerror = e => console.log("ERR", e);
+        this.socket.onclose = () => console.log("CLOSED");
     }
 
 }

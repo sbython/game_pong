@@ -1,72 +1,60 @@
-import Fastify from 'fastify';
-import WebSocket from '@fastify/websocket';
-import config from '../config/config.js';
 
+import Fastify from "fastify";
+import websocket from "@fastify/websocket";
+
+// =======================
+// Create server
+// =======================
 const fastify = Fastify({
-  logger: true, // IMPORTANT: helps you see why clients disconnect
+  // logger: true, // enable logs (IMPORTANT)
 });
 
-// Register WebSocket plugin
-await fastify.register(WebSocket);
+// =======================
+// Start everything safely
+// =======================
+async function start() {
+  // Register WebSocket plugin
+  await fastify.register(websocket);
 
-// Simple in-memory game state (can grow later)
-const gameState = {
-  players: {},
-  ball: { x: 0, z: 0 },
-  paddleLeft: { z: 0 },
-  paddleRight: { z: 0 },
-};
-fastify.register(async (fastify) => {
   // WebSocket route
-fastify.get(config.WS_PATH, { websocket: true }, (connection, req) => {
-  console.log('🟢 Client connected:', req.socket.remoteAddress);
+  fastify.get("/pong", { websocket: true }, (connection, req) => {
+    console.log("✅ WebSocket connected");
+    // Receive messages
+    connection.socket.on("message", (msg) => {
+      // const data = JSON.parse(msg.toString());
+      // if (data.type === "join") {
+      //   // Handle join room logic here
+      //   console.log("Player requested to join a room");
+      //   // You can implement room joining logic using room.js here
+      // }
+      console.log("📩 Received:", msg.toString());
 
-  const ws = connection.socket; // ✅ IMPORTANT
+      // // Echo back (test)
+      // connection.socket.send(
+      //   JSON.stringify({
+      //     type: "echo",
+      //     payload: msg.toString(),
+      //   })
+      // );
+    });
 
-  if (!ws) {
-    console.error('❌ WebSocket connection not established');
-    return;
-  }
-
-  ws.on('message', (message) => {
-    const text = message.toString();
-    console.log('📩 Received:', text);
-
-    ws.send(
-      JSON.stringify({
-        type: 'echo',
-        payload: text,
-      })
-    );
+    // Handle disconnect
+    connection.socket.on("close", () => {
+      console.log("❌ WebSocket disconnected");
+    });
   });
 
-  ws.on('close', () => {
-    console.log('🔴 Client disconnected');
+  // Start server
+  await fastify.listen({
+    port: 3000,
+    host: "0.0.0.0", // VERY IMPORTANT
   });
 
-  ws.on('error', (err) => {
-    console.error('❌ WebSocket error:', err);
-  });
+  console.log("🚀 Server running");
+  console.log("🔌 ws://localhost:3000/pong");
+}
 
-  ws.send(
-    JSON.stringify({
-      type: 'welcome',
-      message: 'Welcome to Pong server',
-    })
-  );
+start().catch((err) => {
+  fastify.log.error(err);
+  process.exit(1);
 });
-});
-
-
-// Start server
-fastify.listen(
-  { port: config.PORT, host: config.HOST },
-  (err, address) => {
-    if (err) {
-      fastify.log.error(err);
-      process.exit(1);
-    }
-    fastify.log.info(`🚀 Server running at ${address}`);
-    fastify.log.info(`🔌 WebSocket path: ${config.WS_PATH}`);
-  }
-);
