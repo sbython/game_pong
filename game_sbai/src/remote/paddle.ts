@@ -8,8 +8,10 @@ class Paddle {
     private scene: Scene;
     public username: Mesh | null = null;
     public user: string = "Player";
+    public socket: WebSocket ;
 
-    constructor(scene: Scene, position: Vector3, _user: string) {
+    constructor(scene: Scene, position: Vector3, _user: string, socket: WebSocket) {
+        this.socket = socket;
         this.scene = scene;
         this.user = _user;
         this.paddleMesh = MeshBuilder.CreateBox('paddle', {width: 1, height: 0.2, depth: 0.01}, this.scene);
@@ -73,7 +75,7 @@ class Paddle {
         }
         this.paddleMesh.position.z -= distance;
     }
-    public contlol(keyUp: string, keyDown: string) {
+    public contlol(keyUp: string, keyDown: string, ) {
         const scene = this.scene;
         const inputMap: { [key: string]: boolean } = {};
         
@@ -88,11 +90,19 @@ class Paddle {
             
             if (inputMap[keyUp]) {
                 this.moveUp(0.2);
-            //    socket.send(JSON.stringify({ type: 'move', direction: 'up' }));
+                const myY = this.paddleMesh.position.z;
+                this.socket.send(JSON.stringify({
+                    type: "move",
+                    y: myY
+                }));
             }
             if (inputMap[keyDown]) {
                 this.moveDown(0.2);
-                //socket.send(JSON.stringify({ type: 'move', direction: 'down' }));
+                const myY = this.paddleMesh.position.z;
+                this.socket.send(JSON.stringify({
+                    type: "move",
+                    y: myY
+                }));
             }
         });
     }

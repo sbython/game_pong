@@ -47,14 +47,13 @@ class Game {
         wallSouth.position.y = 0.1;
 
         
+        this.socket = new WebSocket('ws://localhost:3000/pong');
 
-        
-        this.leftPaddle = new Paddle(this.scene, new Vector3(5.5, 0.1, 0),this.user1);
-        this.rightPaddle = new Paddle(this.scene, new Vector3(-5.5, 0.1, 0), this.user2);
+        this.leftPaddle = new Paddle(this.scene, new Vector3(5.5, 0.1, 0),this.user1,this.socket);
+        this.rightPaddle = new Paddle(this.scene, new Vector3(-5.5, 0.1, 0), this.user2, this.socket);
         this.ball = new Ball(this.scene, new Vector3(-0.088, 0.15, 0.0), this.rightPaddle.paddleMesh, this.leftPaddle.paddleMesh);
 
 
-        this.socket = new WebSocket('ws://localhost:3000/pong');
 
 
     }
@@ -71,17 +70,16 @@ class Game {
     }
     public updateGameState(state: any) {
         // Update paddles
-        this.leftPaddle.paddleMesh.position.y = state.leftPaddle.y;
-        this.rightPaddle.paddleMesh.position.y = state.rightPaddle.y;
+        this.leftPaddle.paddleMesh.position.z = state.leftY;
+        this.rightPaddle.paddleMesh.position.z = state.rightY;
         
         // Update ball
-        this.ball.ballMesh.position.x = state.ball.x;
-        this.ball.ballMesh.position.y = state.ball.y;
+        this.ball.ballMesh.position.x = state.ballX;
+        this.ball.ballMesh.position.y = state.ballY;
 
         // Update scores
-        this.leftPaddle.updateScore(state.leftPaddle.score);
-        this.rightPaddle.updateScore(state.rightPaddle.score);
-        this.leftPaddle.contlol('w', 's');
+        // this.leftPaddle.updateScore(state.leftPaddle.score);
+        // this.rightPaddle.updateScore(state.rightPaddle.score);
 
     }
 
@@ -115,7 +113,6 @@ class Game {
             
             try {
                 const message = JSON.parse(event.data); 
-                console.log("Received message:", message);
                 if (message.type === "gameState") {
                     this.updateGameState(message.state);
                 } else if (message.type === "gameOver") {
@@ -123,18 +120,21 @@ class Game {
                 } else if (message.type === "assignPaddle") {
                     if (message.paddle === "left") {
                         this.playerPaddle = this.leftPaddle;
-                    } else if (message.paddle === "right") {
+                    } else  {
                         this.playerPaddle = this.rightPaddle;
                     }
+                    this.playerPaddle.contlol("s", "w");
+                    this.playerPaddle.contlol("S", "W");
                 }
             } catch (error) {
                 console.error("Error parsing message:", error);
             }
-            const message = JSON.parse(event.data); 
-            console.log("Received message:", message);
+
         };
        
-        this.socket.onerror = e => {}
+        this.socket.onerror = e => {
+            console.log("WebSocket error observed:", e);
+        }
         this.socket.onclose = (event) => {
             console.log("WebSocket is closed now.");
             console.log("Code:", event.code);   // Integer code (e.g., 1000, 1006)

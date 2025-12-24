@@ -1,61 +1,60 @@
+// server.js
+import Fastify from 'fastify';
+import fastifyWebsocket from '@fastify/websocket';
+import { roomManager } from './RoomManager.js'; // Import the instance
+// import config from './config.js'; // Assuming you have a config file
 
-import Fastify from "fastify";
-import websocket from "@fastify/websocket";
-import config from "../config/config.js";
-// =======================
-// Create server
-// =======================
-const fastify = Fastify({
-  logger: true, // enable logs (IMPORTANT)
-});
+const fastify = Fastify({ logger: true });
 
-// =======================
-// Start everything safely
-// =======================
 async function start() {
-  // Register WebSocket plugin
-  await fastify.register(websocket);
+  // 1. Register WebSocket plugin
+  await fastify.register(fastifyWebsocket);
 
-  // WebSocket route
-  fastify.get(config.WS_PATH, { websocket: true }, (connection, req) => {
-    console.log("✅ WebSocket connected");
-   
-    connection.on("message", (msg) => {
-      // onsole.log("d Received Raw Buffer:", msg);
-      try
-      {
-        
-        const data = JSON.parse(msg.toString());
-        if (data.type === "join") {
-            console.log("Player requested to join a room");
+  // 2. Define Route
+  fastify.get('/pong', { websocket: true }, (connection, req) => {
+      
+      const socket = connection; // In your version, connection IS the socket
+      console.log("✅ New Client Connected");
+
+      socket.on("message", (msg) => {
+          try {
+          const data = JSON.parse(msg.toString());
+          
+          if (data.type === "join") {
+            roomManager.handleJoin(socket);
+          }
+          
+          // 🆕 Handle Movement
+          else if (data.type === "move") {
+            // 1. Find the room this player is in
+            const room = roomManager.getRoom(socket);
+            
+            // 2. If room exists, update the paddle
+            if (room) {
+              // data.y is the value sent from client
+              room.updatePaddle(socket, data.y); 
+            }
+          }
+          
+        } catch (e) {
+          console.error("Error:", e);
         }
-        console.log("📩 Received:", msg.toString());
-      }
-      catch (e)
-      {
-        console.log("Error parsing message:", e);
-        return;
-      }
+      });
 
-    });
-
-    // Handle disconnect
-    connection.on("close", () => {
-      console.log("❌ WebSocket disconnected");
-    });
+      socket.on("close", () => {
+        console.log("❌ Client Disconnected");
+        roomManager.handleDisconnect(socket);
+      });
   });
 
-  // Start server
-  await fastify.listen({
-    port: config.PORT,
-    host: config.HOST, // VERY IMPORTANT
-  });
-
-  console.log("🚀 Server running");
-  console.log(`🔌 ws://${config.HOST}:${config.PORT}${config.WS_PATH}`);
+  // 3. Start Server
+  try {
+    await fastify.listen({ port: 3000, host: '0.0.0.0' });
+    console.log("🚀 Server running at ws://localhost:3000/pong");
+  } catch (err) {
+    fastify.log.error(err);
+    process.exit(1);
+  }
 }
 
-start().catch((err) => {
-  fastify.log.error(err);
-  process.exit(1);
-});
+start();
