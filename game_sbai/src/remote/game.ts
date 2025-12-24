@@ -94,14 +94,13 @@ class Game {
             you shoule  get data from server and update it 
             if you need move you paddle seend requist to user server first 
         */
-       console.log();
+
         this.socket.onopen = () => {
             console.log("Connected to server!!!!!");
-            // if (this.socket.readyState !== WebSocket.OPEN) return;
             if (this.socket.readyState === WebSocket.OPEN)
             {
                 console.log("Socket is open, sending join message");
-                this.socket!.send(JSON.stringify({
+                this.socket.send(JSON.stringify({
                     type: "join",
                 }));    
 
@@ -112,16 +111,38 @@ class Game {
             }
         };
 
-        // this.socket.onmessage = (event) => {
+        this.socket.onmessage = (event) => {
             
-        //     // const message = JSON.parse(event.data); 
-        //     // console.log("Received message:", message);
-        // };
+            try {
+                const message = JSON.parse(event.data); 
+                console.log("Received message:", message);
+                if (message.type === "gameState") {
+                    this.updateGameState(message.state);
+                } else if (message.type === "gameOver") {
+                    this.showWinner(message.winner);
+                } else if (message.type === "assignPaddle") {
+                    if (message.paddle === "left") {
+                        this.playerPaddle = this.leftPaddle;
+                    } else if (message.paddle === "right") {
+                        this.playerPaddle = this.rightPaddle;
+                    }
+                }
+            } catch (error) {
+                console.error("Error parsing message:", error);
+            }
+            const message = JSON.parse(event.data); 
+            console.log("Received message:", message);
+        };
        
-        this.socket.onerror = e => console.log("ERR", e);
-        this.socket.onclose = () => console.log("CLOSED");
+        this.socket.onerror = e => {}
+        this.socket.onclose = (event) => {
+            console.log("WebSocket is closed now.");
+            console.log("Code:", event.code);   // Integer code (e.g., 1000, 1006)
+            console.log("Reason:", event.reason); // String reason given by server
+            console.log("WasClean:", event.wasClean); // Boolean: true if closed normally
+        };
     }
 
 }
 
-export default Game;
+export default Game;    

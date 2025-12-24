@@ -1,5 +1,5 @@
 const config = {
-PORT: 8080,
+PORT: 3000,
 HOST  : 'localhost',
 WS_PATH                : '/pong',
 BACKEND_URL      : 'http://localhost:3000',
