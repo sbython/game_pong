@@ -42,10 +42,25 @@ export class GameRoom {
       this.state.rightY = newY;
     }
   }
+  resetBall()
+  {
+    this.state.ballX = 0;
+    this.state.ballY = 0;
+  }
   checkPaddleCollision() {
     this.state.ballX += this.speedX;
     this.state.ballY += this.speedY;
     
+    if (this.state.ballY > 3)
+    {
+      this.state.ballY = 3;
+      this.state.speedY = -this.state.speedY;
+    }
+    if (this.state.ballY > -3)
+    {
+      this.state.ballY = -3;
+      this.state.speedY = -this.state.speedY;
+    }
     // Check collision with left paddle
     if (this.state.ballX <= -6) {
       if (this.state.ballY >= this.state.leftY - 0.2 && this.state.ballY <= this.state.leftY + 0.2) {

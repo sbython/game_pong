@@ -18,22 +18,22 @@ async function start() {
 
       socket.on("message", (msg) => {
           try {
-          const data = JSON.parse(msg.toString());
-          
-          if (data.type === "join") {
-            roomManager.handleJoin(socket);
-          }
-          
-          // 🆕 Handle Movement
-          else if (data.type === "move") {
-            // 1. Find the room this player is in
-            const room = roomManager.getRoom(socket);
+            const data = JSON.parse(msg.toString());
             
-            // 2. If room exists, update the paddle
-            if (room) {
-              // data.y is the value sent from client
-              room.updatePaddle(socket, data.y); 
+            if (data.type === "join") {
+              roomManager.handleJoin(socket);
             }
+            
+            // 🆕 Handle Movement
+            else if (data.type === "move") {
+              // 1. Find the room this player is in
+              const room = roomManager.getRoom(socket);
+              
+              // 2. If room exists, update the paddle
+              if (room) {
+                // data.y is the value sent from client
+                room.updatePaddle(socket, data.y); 
+              }
           }
           
         } catch (e) {

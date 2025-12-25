@@ -114,6 +114,14 @@ class Paddle {
         this.scoreValue = score;
 
     }
+    addScore() {
+        this.scoreValue += 1;
+        this.textBlock.text = this.scoreValue.toString();
+        if (this.scoreValue >= 3) {    
+            return true;
+        } 
+        return false;  
+    }
     public getMesh(): Mesh {
         return this.paddleMesh;
     }

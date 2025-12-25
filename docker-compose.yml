@@ -1,0 +1,17 @@
+
+services:
+  server_pong:
+    build: ./server_pong
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./server_pong:/app
+    
+  game_sbai:
+    build: ./game_sbai
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./game_sbai:/usr/share/nginx/html
+    depends_on:
+      - server_pong 
