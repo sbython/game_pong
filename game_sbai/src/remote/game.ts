@@ -1,6 +1,15 @@
 import { Engine, Scene,  Vector3 ,MeshBuilder,HemisphericLight,StandardMaterial,Texture,Color3, ArcRotateCamera} from '@babylonjs/core';
 import Paddle from './paddle';
 import Ball from './ball';
+
+
+const protocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+const host = window.location.hostname; // e.g., "localhost" or "192.168.1.15"
+const port = '3000'; // Your backend port
+
+// 2. Build the dynamic URL
+const serverUrl = `${protocol}${host}:${port}/pong`;
+
 class Game {
     private engine: Engine;
     public scene: Scene;
@@ -46,8 +55,7 @@ class Game {
         wallSouth.position.z = 3;
         wallSouth.position.y = 0.1;
 
-        
-        this.socket = new WebSocket('ws://localhost:3000/pong');
+        this.socket = new WebSocket(serverUrl);
 
         this.leftPaddle = new Paddle(this.scene, new Vector3(5.5, 0.1, 0),this.user1,this.socket);
         this.rightPaddle = new Paddle(this.scene, new Vector3(-5.5, 0.1, 0), this.user2, this.socket);
@@ -125,6 +133,13 @@ class Game {
                     }
                     this.playerPaddle.contlol("s", "w");
                     this.playerPaddle.contlol("S", "W");
+                }
+                else if (message.type === "pointScored") {
+                    if (message.player === "left") {
+                        this.leftPaddle.updateScore(message.newScore);
+                    } else {
+                        this.rightPaddle.updateScore(message.newScore);
+                    }
                 }
             } catch (error) {
                 console.error("Error parsing message:", error);
