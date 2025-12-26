@@ -68,11 +68,11 @@ class Ball {
         const paddleThickness = 0.01; // paddle depth after rotation
 
         // Paddle is rotated 90°, so local X becomes world Z
-        const halfOfz = paddleSize.x;
+        const halfOfz = paddleSize.x ;
 
         // Check Z collision (ball within paddle's vertical range)
-        const zCollision = (this.ballMesh.position.z >= paddlePosition.z - halfOfz) && 
-                          (this.ballMesh.position.z <= paddlePosition.z + halfOfz);
+        const zCollision = (this.ballMesh.position.z  >= paddlePosition.z - halfOfz) && 
+                          (this.ballMesh.position.z   <= paddlePosition.z + halfOfz);
         if (!zCollision) return;
 
         const ballX = this.ballMesh.position.x;
@@ -84,7 +84,7 @@ class Ball {
             const ballLeftEdge = ballX - ballRadius;
             const paddleRightEdge = paddleX + paddleThickness;
             
-            if (ballLeftEdge <= paddleRightEdge && ballX > paddleX) {
+            if (ballLeftEdge <= paddleRightEdge /*&& ballX > paddleX*/) {
                 this.speedX = -this.speedX;
                 this.ballMesh.position.x = paddleRightEdge + ballRadius; // push out
             }
@@ -95,7 +95,7 @@ class Ball {
             const ballRightEdge = ballX + ballRadius;
             const paddleLeftEdge = paddleX - paddleThickness;
             
-            if (ballRightEdge >= paddleLeftEdge && ballX < paddleX) {
+            if (ballRightEdge >= paddleLeftEdge /*&& ballX < paddleX*/) {
                 this.speedX = -this.speedX;
                 this.ballMesh.position.x = paddleLeftEdge - ballRadius; // push out
             }

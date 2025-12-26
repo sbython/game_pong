@@ -7,3 +7,5 @@
 | 1001 | Going Away | The server is shutting down (restart) or the user navigated away from the page. |
 | 1009 | Message Too Big | You tried to send a data packet larger than the server allows. |
 | 1011 | Internal Error | The server encountered an error while processing a request and killed the connection. |
+
+

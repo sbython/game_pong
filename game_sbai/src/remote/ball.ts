@@ -54,7 +54,6 @@ class Ball {
                 this.showEndMessage("Game Over");
                 return;
             }
-            ;
         }
     }
     /* 
@@ -129,8 +128,8 @@ class Ball {
             const sizel : Vector3 =  this.paddLeft.getBoundingInfo().boundingBox.extendSize;
             const sizer : Vector3 =  this.paddRight.getBoundingInfo().boundingBox.extendSize;
 
-            this.checkPaddleCollision(this.paddLeft.position,sizel);
-            this.checkPaddleCollision(this.paddRight.position,sizer);
+            this.checkPaddleCollision(this.paddLeft.position , sizel);
+            this.checkPaddleCollision(this.paddRight.position , sizer);
             this.move(leftPaddle,rightPaddle);
             
                     

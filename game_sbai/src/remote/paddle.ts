@@ -64,16 +64,19 @@ class Paddle {
     }
     public moveUp(distance: number) {
         if (this.paddleMesh.position.z + distance > 3) {
-            return;
+            return true;
         }
         this.paddleMesh.position.z += distance;
+        return false;
+
     }
 
     public moveDown(distance: number) {
         if (this.paddleMesh.position.z - distance < -3) {
-            return;
+            return true;
         }
         this.paddleMesh.position.z -= distance;
+        return false;
     }
     public contlol(keyUp: string, keyDown: string, ) {
         const scene = this.scene;
@@ -89,7 +92,7 @@ class Paddle {
         scene.onBeforeRenderObservable.add(() => {
             
             if (inputMap[keyUp]) {
-                this.moveUp(0.2);
+                if (this.moveUp(0.1)) return;
                 const myY = this.paddleMesh.position.z;
                 this.socket.send(JSON.stringify({
                     type: "move",
@@ -97,7 +100,7 @@ class Paddle {
                 }));
             }
             if (inputMap[keyDown]) {
-                this.moveDown(0.2);
+                if (this.moveDown(0.1)) return;
                 const myY = this.paddleMesh.position.z;
                 this.socket.send(JSON.stringify({
                     type: "move",

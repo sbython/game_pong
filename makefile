@@ -21,6 +21,9 @@ restart: stop run
 logs:
 	docker-compose logs -f
 
+re: restart 
+
 clean:
 	docker-compose down -v
 	docker volume prune -f	
+	docker system prune -a --volumes

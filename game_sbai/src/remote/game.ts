@@ -34,7 +34,7 @@ class Game {
         this.engine = new Engine(this.canvas, true);
         this.scene = new Scene(this.engine);    
         this.camera = new   ArcRotateCamera("ArcRotateCamera", Math.PI / 2, Math.PI / 5, 12, Vector3.Zero(), this.scene);
-        // this.camera.attachControl(this.canvas, true);
+        this.camera.attachControl(this.canvas, true);
         this.camera.setTarget(Vector3.Zero());
         const light = new HemisphericLight('light1', new Vector3(0, 1, 0), this.scene);
         light.intensity = 0.8;
@@ -83,7 +83,7 @@ class Game {
         
         // Update ball
         this.ball.ballMesh.position.x = state.ballX;
-        this.ball.ballMesh.position.y = state.ballY;
+        this.ball.ballMesh.position.z = state.ballY;
 
         // Update scores
         // this.leftPaddle.updateScore(state.leftPaddle.score);
@@ -92,7 +92,10 @@ class Game {
     }
 
     public showWinner(winner: string) {
-        alert(`${winner} wins the game!`);
+        if (winner == "left")
+            this.ball.showEndMessage(this.user1 + " is the winner");
+        else if( winner == "right")
+            this.ball.showEndMessage(this.user2 + " is thewinner");
     }
     public start() {
         /*
@@ -136,8 +139,10 @@ class Game {
                 }
                 else if (message.type === "pointScored") {
                     if (message.player === "left") {
+                        console.log("left");
                         this.leftPaddle.updateScore(message.newScore);
-                    } else {
+                    } else if (message.player == "right") {    
+                        console.log("right");  
                         this.rightPaddle.updateScore(message.newScore);
                     }
                 }

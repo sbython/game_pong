@@ -101,7 +101,7 @@ class Ball {
             }
         }
     }
-    showEndMessage(text : string) {
+    public showEndMessage(text : string) {
         const ui = AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
         const msg = new TextBlock();
